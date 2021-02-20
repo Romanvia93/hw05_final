@@ -1,0 +1,55 @@
+<!-- templates/about/author.html -->
+{% extends "base.html" %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+{% load user_filters %}
+  <main role="main" class="container">
+    <div class="row">
+      <!-- Левый вспомогательный блок -->
+      <div class="col-md-3 mb-3 mt-1">
+        <div class="card">
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div class="h3">
+                  Об авторе
+                </div> 
+              </li>
+              <li class="list-group-item">
+                <div class="h6 text-muted">
+                  Роман Николаевич Бурехин
+                </div>
+              </li>
+            </ul>                                               
+          </div>                    
+        </div>                
+      </div>
+      <!-- Тело страницы -->
+      <div class="col-md-9">
+        <div class="card-body">                    
+          <div class="card-text">
+            <p><b>Всем привет!</b></p>
+            <p>Я студент <b>"Яндекс. Практикум" </b> и это мой первый проект, 
+                так что не судите строго :)</p>
+            <p>Немного обо мне: "учусь" в аспире в НИУ ВШЭ, 
+                работаю в банке DS и многое другое</p> 
+
+            <p> Зачем мне <a href="https://praktikum.yandex.ru/profile/backend-developer/">"Яндекс. Практикум"</a>?
+                Посмотрел фильм "Социальная сеть" и подумал, вот он путь к славе:)  </p> 
+                <img src="http://risovach.ru/upload/2019/11/mem/formuly_225448626_orig_.png">
+            <hr/>
+            <p><b>Контакты</b></p>
+            <p>Телефон: 8-977-140-4237</p>
+            <p>Электронная почта: romanvia93@yandex.ru</p>
+            <p>Мой <a href="https://github.com/Romanvia93">Github</a></p>   
+            <p>Моя <a href="https://www.hse.ru/org/persons/190879075">страничка в вышки</a></p> 
+            <p>Если кому-то интересна <a href="https://www.instagram.com/romaburekhin/">страничка в инсте</a></p> 
+ 
+            
+            
+          </div>                    
+        </div>                
+      </div>            
+    </div>        
+  </main>
+{% endblock %} 
