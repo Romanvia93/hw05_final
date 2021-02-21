@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from posts.models import Post, Group, Follow, Comment
+from posts.models import Post, Group, Follow
 from django.urls import reverse
 from django import forms
 import tempfile
@@ -335,7 +335,7 @@ class FollowTest(TestCase):
         self.assertEqual(followings.count(), 1)
 
         # 2. User get to posts:profile_follow, then he should delete followings
-        response = self.authorized_client.post(
+        self.authorized_client.post(
             reverse('posts:profile_unfollow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,

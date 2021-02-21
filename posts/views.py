@@ -150,7 +150,6 @@ def follow_index(request):
                   )
 
 
-
 @login_required
 def profile_follow(request, username):
     """Def for author following"""
