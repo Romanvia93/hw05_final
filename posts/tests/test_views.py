@@ -326,7 +326,7 @@ class FollowTest(TestCase):
         self.assertEqual(followings.count(), 0)
 
         # 2. User get to posts:profile_follow,then he should have one follow
-        response = self.authorized_client.post(
+        self.authorized_client.post(
             reverse('posts:profile_follow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,
