@@ -13,6 +13,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from posts.forms import PostForm
 import time
 from django.core.cache import cache
+import pytest
 
 User = get_user_model()
 
@@ -383,27 +384,5 @@ class FollowTest(TestCase):
         cnt_posts = len(response.context['page'])
         self.assertEqual(cnt_posts, 0)
 
-    def test_autuser_can_make_comment_and_noautuser_cant_make_comment(self):
-        """Только авторизированный пользователь может комментировать посты.
-        """   
-        # 1. number commnents before commenting
-        self.assertEqual(Comment.objects.count(), 0)
-        # 2. number commnents after commenting by authorized_client
-        response = self.authorized_client.post(reverse('posts:add_comment', 
-                                                       args=[self.post.author, 
-                                                       self.post.id]),
-                                                       {'text': 'comment'})   
-        self.assertEqual(Comment.objects.count(), 1)
 
-        # 3. Check correction of comment
-        comment = Comment.objects.filter(author=self.post.author, post=self.post.id)
-        self.assertEqual(comment[0].text, 'comment')
 
-        # 5. number commnents after commenting by not authorized_client
-        Comment.objects.first().delete()
-
-        response = self.guest.post(reverse('posts:add_comment', 
-                                                       args=[self.post.author, 
-                                                       self.post.id]),
-                                                       {'text': 'comment'})   
-        self.assertEqual(Comment.objects.count(), 0)

@@ -15,12 +15,12 @@ def index(request):
     page_number = request.GET.get('page')
     # Получаем набор записей для страницы с запрошенным номером
     page = paginator.get_page(page_number)
-    index = True
+    index_flg = True
     return render(request,
                   'posts/index.html',
                   {'page': page,
                    'paginator': paginator,
-                   'index': index}
+                   'index_flg': index_flg}
                   )
 
 
@@ -136,13 +136,15 @@ def follow_index(request):
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-
+    user = User.objects.filter(username=request.user)[0]
     follow = True
     return render(request,
                   'posts/follow.html',
                   {'page': page,
                    'paginator': paginator,
-                   'follow': follow}
+                   'follow': follow,
+                   'user': user,
+                   }
                   )
 
 
@@ -157,8 +159,7 @@ def profile_follow(request, username):
         Follow.objects.create(user = request.user, author = author)
     
     return redirect('posts:profile', username)
-    
-    
+
 
 
 @login_required
@@ -170,8 +171,7 @@ def profile_unfollow(request, username):
         follower.delete()
     
     return redirect('posts:profile', username)
-    # ...
-    pass 
+ 
 
 
 
