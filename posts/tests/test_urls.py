@@ -68,10 +68,9 @@ class TaskURLTests(TestCase):
 
     def test_url_exists_for_any_users(self):
         """Главна Страница и стр. с групп. доступна любому пользователю."""
-        templates_url_names = [
-                            #    reverse('posts:index'),
-                            #    reverse('posts:group', args=['test-slug']),
-                            #    reverse('posts:profile', args=['testuser1']),
+        templates_url_names = [reverse('posts:index'),
+                               reverse('posts:group', args=['test-slug']),
+                               reverse('posts:profile', args=['testuser1']),
                                reverse('posts:post', args=['testuser1', '1']),
                                ]
 

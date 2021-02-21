@@ -34,8 +34,8 @@ admin.site.register(Comment, CommentAdmin)
 
 class CommentFollow(admin.ModelAdmin):
 
-    list_display = ('user','author', )
-    search_fields = ('user','author',)
+    list_display = ('user', 'author', )
+    search_fields = ('user', 'author',)
 
 
 admin.site.register(Follow, CommentFollow)

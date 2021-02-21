@@ -11,9 +11,7 @@ from django.conf import settings
 import shutil
 from django.core.files.uploadedfile import SimpleUploadedFile
 from posts.forms import PostForm
-import time
 from django.core.cache import cache
-import pytest
 
 User = get_user_model()
 
@@ -56,6 +54,7 @@ class TaskPagesTests(TestCase):
         self.authorized_client.force_login(self.user)
 
         cache.clear()
+
     # Проверяем используемые шаблоны
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
@@ -262,6 +261,7 @@ class PostCreateTest(TestCase):
         self.authorized_client.force_login(self.user)
 
         cache.clear()
+
     def test_post_in_right_group(self):
         """Проверка, что при создании поста, этот пост появляется
         на главной странице сайта, на странице выбранной группы.
@@ -314,53 +314,50 @@ class FollowTest(TestCase):
         self.authorized_client.force_login(self.user)
 
         self.guest = Client()
-        
+
         cache.clear()
-    
-       
+
     def test_autuser_can_follow_and_unfollow(self):
-        """Авторизованный пользователь может подписываться на 
-        других пользователей и удалять их из подписок.
+        """Авторизованный пользователь может подписываться на других
+        пользователей и удалять их из подписок.
         """
-        
         # 1. Check that user doesnot have followings
         followings = Follow.objects.all()
         self.assertEqual(followings.count(), 0)
-        
-        # 2. User get to posts:profile_follow, then he should have one followings
+
+        # 2. User get to posts:profile_follow,then he should have one follow
         response = self.authorized_client.post(
-            reverse('posts:profile_follow', args= [self.author_second])) 
+            reverse('posts:profile_follow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,
-            author = self.author_second
+            author=self.author_second
         )
         self.assertEqual(followings.count(), 1)
 
         # 2. User get to posts:profile_follow, then he should delete followings
         response = self.authorized_client.post(
-            reverse('posts:profile_unfollow', args= [self.author_second])
-            ) 
+            reverse('posts:profile_unfollow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,
-            author = self.author_second
+            author=self.author_second
         )
         self.assertEqual(followings.count(), 0)
 
     def test_followpost_for_followuser_and_not_for_not_follow_autuser(self):
-        """Новая запись пользователя появляется в ленте тех, кто на 
+        """Новая запись пользователя появляется в ленте тех, кто на
         него подписан и не появляется в ленте тех, кто не подписан на него.
-        """ 
+        """
         # 0. Number posts on follow_index before following
         response = self.authorized_client.get(reverse('posts:follow_index'))
         cnt_posts = len(response.context['page'])
         self.assertEqual(cnt_posts, 0)
-        
+
         # 1. Follow to author
         response = self.authorized_client.post(
-            reverse('posts:profile_follow', args= [self.author_second])) 
+            reverse('posts:profile_follow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,
-            author = self.author_second
+            author=self.author_second
         )
         self.assertEqual(followings.count(), 1)
 
@@ -368,21 +365,17 @@ class FollowTest(TestCase):
         response = self.authorized_client.get(reverse('posts:follow_index'))
         cnt_posts = len(response.context['page'])
         self.assertEqual(cnt_posts, 1)
-        
+
         # 3. unfollow to author
         response = self.authorized_client.post(
-            reverse('posts:profile_unfollow', args= [self.author_second])
-            ) 
+            reverse('posts:profile_unfollow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,
-            author = self.author_second
+            author=self.author_second
         )
         self.assertEqual(followings.count(), 0)
-        
-        # 4. Number posts on follow_index after unfollowing. So it is unfllowing user
+
+        # 4. Number posts on follow_index after unfollowing.
         response = self.authorized_client.get(reverse('posts:follow_index'))
         cnt_posts = len(response.context['page'])
         self.assertEqual(cnt_posts, 0)
-
-
-
