@@ -29,7 +29,10 @@ class Post(models.Model):
                               help_text='Выбирите группу, куда попадет пост',
                               validators=[validate_not_empty])
     # поле для картинки
-    image = models.ImageField(upload_to='posts/', blank=True, null=True)
+    image = models.ImageField(upload_to='posts/',
+                              verbose_name='Изображение',
+                              help_text='Загрузите изображение',
+                              blank=True, null=True)
 
     class Meta:
         ordering = ['-pub_date']
@@ -57,3 +60,9 @@ class Follow(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='following')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'author'],
+                                    name='unique_followings'),
+        ]

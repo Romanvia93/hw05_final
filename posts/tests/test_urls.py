@@ -11,7 +11,7 @@ class StaticURLTests(TestCase):
         self.guest_client = Client()
 
     def test_homepage(self):
-        response = self.guest_client.get('/')
+        response = self.guest_client.get(reverse('posts:index'))
         self.assertEqual(response.status_code, 200)
 
 

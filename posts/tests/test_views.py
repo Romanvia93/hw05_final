@@ -313,11 +313,15 @@ class FollowTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
+        self.user_second = FollowTest.author_second
+        self.auth_client_second = Client()
+        self.auth_client_second.force_login(self.user_second)
+
         self.guest = Client()
 
         cache.clear()
 
-    def test_autuser_can_follow_and_unfollow(self):
+    def test_autuser_can_follow(self):
         """Авторизованный пользователь может подписываться на других
         пользователей и удалять их из подписок.
         """
@@ -334,7 +338,18 @@ class FollowTest(TestCase):
         )
         self.assertEqual(followings.count(), 1)
 
-        # 2. User get to posts:profile_follow, then he should delete followings
+    def test_autuser_can_unfollow(self):
+        """Авторизованный пользователь может удалять авторов из подписок."""
+        # 1. User follows to author
+        self.authorized_client.post(
+            reverse('posts:profile_follow', args=[self.author_second]))
+        followings = Follow.objects.filter(
+            user=self.author,
+            author=self.author_second
+        )
+        self.assertEqual(followings.count(), 1)
+
+        # 2. User get to posts:profile_unfollow, then he should delete follow
         self.authorized_client.post(
             reverse('posts:profile_unfollow', args=[self.author_second]))
         followings = Follow.objects.filter(
@@ -345,7 +360,7 @@ class FollowTest(TestCase):
 
     def test_followpost_for_followuser_and_not_for_not_follow_autuser(self):
         """Новая запись пользователя появляется в ленте тех, кто на
-        него подписан и не появляется в ленте тех, кто не подписан на него.
+        него подписан.
         """
         # 0. Number posts on follow_index before following
         response = self.authorized_client.get(reverse('posts:follow_index'))
@@ -366,16 +381,20 @@ class FollowTest(TestCase):
         cnt_posts = len(response.context['page'])
         self.assertEqual(cnt_posts, 1)
 
-        # 3. unfollow to author
+    def test_followpost_for_not_follow_autuser(self):
+        """Новая запись пользователя не появляется в ленте тех,
+         кто не подписан на него.
+        """
+        # 1. authorized_client Follow to author
         response = self.authorized_client.post(
-            reverse('posts:profile_unfollow', args=[self.author_second]))
+            reverse('posts:profile_follow', args=[self.author_second]))
         followings = Follow.objects.filter(
             user=self.author,
             author=self.author_second
         )
-        self.assertEqual(followings.count(), 0)
+        self.assertEqual(followings.count(), 1)
 
-        # 4. Number posts on follow_index after unfollowing.
-        response = self.authorized_client.get(reverse('posts:follow_index'))
+        # 2. Number posts on follow_index for client without followings
+        response = self.auth_client_second.get(reverse('posts:follow_index'))
         cnt_posts = len(response.context['page'])
         self.assertEqual(cnt_posts, 0)

@@ -7,6 +7,7 @@ from django.conf import settings
 import shutil
 from django.core.files.uploadedfile import SimpleUploadedFile
 from posts.forms import PostForm
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -43,30 +44,7 @@ class PostCreateTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_create_post(self):
-        """Проверка, что при отправке формы создаётся новая запись в
-        базе данных.
-        """
-        tasks_count = Post.objects.count()
-        form_data = {'group': PostCreateTest.group.id,
-                     'text': 'test_text'}
-
-        # Отправляем POST-запрос
-        response = self.authorized_client.post(
-            reverse('posts:new_post'),
-            data=form_data,
-            follow=True
-        )
-
-        # Проверяем, сработал ли редирект
-        self.assertRedirects(response, '/')
-
-        # Проверяем, увеличилось ли число постов
-        self.assertEqual(Post.objects.count(), tasks_count + 1)
-
-        # Проверяем, что создалась запись с нашим слагом
-        self.assertTrue(Post.objects.filter(
-            group=PostCreateTest.group).exists())
+        cache.clear()
 
     def test_form_edit_post(self):
         """при редактировании поста через форму на странице
@@ -105,11 +83,6 @@ class PostCreateTest(TestCase):
             content=small_gif,
             content_type='image/gif'
         )
-        form_data = {
-            'group': 'new_group',
-            'text': 'test_text',
-            'image': uploaded,
-        }
 
         form_data = {'group': PostCreateTest.group.id,
                      'text': 'test_text',
@@ -128,3 +101,27 @@ class PostCreateTest(TestCase):
         self.assertEqual(Post.objects.count(), tasks_count + 1)
         self.assertTrue(Post.objects.filter(
             group=PostCreateTest.group).exists())
+
+    def test_downloat_not_image(self):
+        """Тест загрузки формата изображения"""
+
+        not_image = SimpleUploadedFile(
+            name='test.txt',
+            content=b'test',
+            content_type='text/plain'
+        )
+        form_data = {'group': PostCreateTest.group.id,
+                     'text': 'test_text',
+                     'image': not_image,
+                     }
+        response = self.authorized_client.post(
+            reverse('posts:new_post'),
+            data=form_data,
+            follow=True
+        )
+
+        self.assertFormError(response, 'form',
+                             'image',
+                             errors=['Upload a valid image. The file you'
+                                     ' uploaded was either not an image or'
+                                     ' a corrupted image.'])
